@@ -63,8 +63,8 @@ void * false_sharing_test(void * a)
   cpu_set_t cpuset;
   int ret;
   pthread_t pid;
-  long long * p_data0;
-  long long * p_data1;
+  volatile long long * p_data0;
+  volatile long long * p_data1;
 
 
   if(test_num==0)
