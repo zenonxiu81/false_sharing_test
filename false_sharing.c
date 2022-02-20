@@ -33,15 +33,15 @@
 
 typedef struct {
 	
-  long long data0;
-  long long data1; 
+  volatile long long data0;
+  volatile long long data1; 
 
 } test_data;
 
 typedef struct {
 	
-  long long data0  __attribute__((aligned(CACHE_LINE_SZ)));
-  long long data1  __attribute__((aligned(CACHE_LINE_SZ))); 
+  volatile long long data0  __attribute__((aligned(CACHE_LINE_SZ)));
+  volatile long long data1  __attribute__((aligned(CACHE_LINE_SZ))); 
 
 } cacheline_aligned_test_data;
 
@@ -50,7 +50,7 @@ unsigned int cpu_run_T0, cpu_run_T1;    //cpu number to run the test.
 test_data false_sharing_test_data;
 cacheline_aligned_test_data false_sharing_cacheline_aligned_test_data;
 
-unsigned int iteration;
+unsigned long long iteration;
 
 pthread_t tidp[2];
 
@@ -58,7 +58,7 @@ pthread_t tidp[2];
 void * false_sharing_test(void * a)
 {
   int id, raw_id; 
-  unsigned int  i;
+  unsigned long long  i;
   int test_num=*((int *)a);
   cpu_set_t cpuset;
   int ret;
@@ -102,16 +102,14 @@ void * false_sharing_test(void * a)
   for(i=0;i<iteration; i++)
    {
    *p_data0 +=1;
-    p_data0++;
    }
-  printf("T1 done!\n"); 
+  printf("T0 done!\n"); 
   }
   else if(pid==tidp[1]){
    printf("T1 started!\n");
     for(i=0;i<iteration; i++)
      {
       *p_data1 +=1;
-      p_data1++;
      } 
    printf("T1 done!\n"); 
   } 	
@@ -160,7 +158,7 @@ int main(int agrc,char* argv[])
    } 
  }
  
- printf("Parameter used: -c %d -t %d -n %d %d\n",iteration,test_num,cpu_run_T0,cpu_run_T1);
+ printf("Parameter used: -n %lld -t %d -c %d %d\n",iteration,test_num,cpu_run_T0,cpu_run_T1);
 
 
  __asm__("dmb ish ");
